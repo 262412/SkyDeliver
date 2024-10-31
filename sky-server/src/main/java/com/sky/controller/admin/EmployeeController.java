@@ -1,6 +1,8 @@
 package com.sky.controller.admin;
 
 import com.sky.constant.JwtClaimsConstant;
+import com.sky.context.BaseContext;
+import com.sky.dto.EditPasswordDTO;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
@@ -45,7 +47,6 @@ public class EmployeeController {
     public Result<EmployeeLoginVO> login(@RequestBody EmployeeLoginDTO employeeLoginDTO) {
         // 记录员工登录信息
         log.info("员工登录：{}", employeeLoginDTO);
-
         // 调用服务层方法处理登录逻辑
         Employee employee = employeeService.login(employeeLoginDTO);
 
@@ -121,6 +122,7 @@ public class EmployeeController {
      * @return 返回操作结果，仅告知操作成功
      */
     @PostMapping("/status/{status}")
+    @ApiOperation(value = "启用禁用员工账号", notes = "启用禁用员工账号")
     public Result<String> startOrStop(@PathVariable Integer status, Long id) {
         // 记录启用或禁用员工账号的日志
         log.info("启用禁用员工账号：{},{}", status, id);
@@ -166,6 +168,18 @@ public class EmployeeController {
         employeeService.update(employeeDTO);
 
         // 返回修改成功的结果
+        return Result.success();
+    }
+    @PutMapping("/editPassword")
+    @ApiOperation(value = "修改密码", notes = "修改密码")
+    public Result editPassword(@RequestBody EditPasswordDTO editPasswordDTO) {
+        // 记录修改密码的日志
+        log.info("修改密码：{}", editPasswordDTO);
+
+        // 调用服务层方法修改密码
+        employeeService.editPassword(editPasswordDTO);
+
+        // 返回修改密码成功的结果
         return Result.success();
     }
 }

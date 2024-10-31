@@ -6,6 +6,7 @@ import com.sky.constant.MessageConstant;
 import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
+import com.sky.dto.EditPasswordDTO;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
@@ -16,6 +17,7 @@ import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
 import com.sky.result.PageResult;
 import com.sky.service.EmployeeService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Slf4j
 public class EmployeeServiceImpl implements EmployeeService {
 
     @Autowired
@@ -136,6 +139,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 调用Mapper的update方法更新数据库中的员工记录
         employeeMapper.update(employee);
     }
+
     /**
      * 根据员工ID获取员工信息，并隐藏员工密码
      *
@@ -153,9 +157,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 返回处理后的员工对象
         return employee;
     }
+
     /**
      * 更新员工信息
-     *
+     * <p>
      * 该方法接收一个员工数据传输对象（EmployeeDTO），将其属性复制到一个员工对象（Employee）中，
      * 然后设置当前时间和当前用户ID作为更新信息，最后调用Mapper的update方法更新数据库中的员工记录
      *
@@ -172,6 +177,30 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 设置更新用户的ID
         employee.setUpdateUser(BaseContext.getCurrentId());
         // 调用Mapper的update方法更新数据库中的员工记录
+        employeeMapper.update(employee);
+    }
+
+    @Override
+    public void editPassword(EditPasswordDTO editPasswordDTO) {
+        // 获取当前用户ID
+        Long currentId = BaseContext.getCurrentId();
+
+        // 根据ID查询用户信息
+        Employee employee = employeeMapper.getById(currentId);
+
+        // 将输入的旧密码进行MD5加密
+        String oldPassword = DigestUtils.md5DigestAsHex(editPasswordDTO.getOldPassword().getBytes());
+
+        // 验证旧密码是否正确
+        if (!oldPassword.equals(employee.getPassword())) {
+            throw new AccountLockedException(MessageConstant.PASSWORD_ERROR);
+        }
+
+        // 将输入的新密码进行MD5加密
+        String newPassword = DigestUtils.md5DigestAsHex(editPasswordDTO.getNewPassword().getBytes());
+
+        // 更新用户密码
+        employee.setPassword(newPassword);
         employeeMapper.update(employee);
     }
 }
