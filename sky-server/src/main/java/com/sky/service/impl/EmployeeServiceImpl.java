@@ -178,11 +178,36 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 调用Mapper的update方法更新数据库中的员工记录
         employeeMapper.update(employee);
     }
+    /**
+     * 重写编辑密码方法
+     *
+     * 此方法接收一个包含员工ID、旧密码和新密码的DTO对象，用于验证旧密码并更新为新密码
+     * 它首先将提供的旧密码和新密码转换为MD5哈希，然后检查数据库中的密码是否与提供的旧密码匹配
+     * 如果密码不匹配，则抛出异常如果密码匹配，则更新数据库中的密码
+     *
+     * @param editPasswordDTO 包含员工ID、旧密码和新密码的数据传输对象
+     * @throws AccountNotFoundException 如果提供的旧密码与数据库中的密码不匹配
+     */
     @Override
     public void editPassword(EditPasswordDTO editPasswordDTO) {
+        // 获取员工ID、旧密码和新密码
         Long empId = editPasswordDTO.getEmpId();
         String oldPassword = editPasswordDTO.getOldPassword();
         String newPassword = editPasswordDTO.getNewPassword();
+
+        // 将旧密码和新密码转换为MD5哈希
+        oldPassword = DigestUtils.md5DigestAsHex(oldPassword.getBytes());
+        newPassword = DigestUtils.md5DigestAsHex(newPassword.getBytes());
+
+        // 通过员工ID从数据库中获取员工信息
+        Employee employee = employeeMapper.getById(empId);
+
+        // 验证数据库中的密码是否与提供的旧密码匹配
+        if (!employee.getPassword().equals(oldPassword)) {
+            throw new AccountNotFoundException(MessageConstant.PASSWORD_ERROR);
+        }
+
+        // 更新数据库中的密码
         employeeMapper.editPassword(empId, oldPassword, newPassword);
     }
 }
