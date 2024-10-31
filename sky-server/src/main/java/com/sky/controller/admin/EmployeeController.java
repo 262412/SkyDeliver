@@ -34,16 +34,18 @@ public class EmployeeController {
     /**
      * 登录
      *
-     * @param employeeLoginDTO
-     * @return
+     * @param employeeLoginDTO 包含登录信息的数据传输对象
+     * @return 登录结果，包含用户信息和令牌
      */
     @PostMapping("/login")
     public Result<EmployeeLoginVO> login(@RequestBody EmployeeLoginDTO employeeLoginDTO) {
+        // 记录员工登录信息
         log.info("员工登录：{}", employeeLoginDTO);
 
+        // 调用服务层方法处理登录逻辑
         Employee employee = employeeService.login(employeeLoginDTO);
 
-        //登录成功后，生成jwt令牌
+        // 登录成功后，生成jwt令牌
         Map<String, Object> claims = new HashMap<>();
         claims.put(JwtClaimsConstant.EMP_ID, employee.getId());
         String token = JwtUtil.createJWT(
@@ -51,6 +53,7 @@ public class EmployeeController {
                 jwtProperties.getAdminTtl(),
                 claims);
 
+        // 构建返回的员工登录视图对象
         EmployeeLoginVO employeeLoginVO = EmployeeLoginVO.builder()
                 .id(employee.getId())
                 .userName(employee.getUsername())
@@ -58,6 +61,7 @@ public class EmployeeController {
                 .token(token)
                 .build();
 
+        // 返回登录成功结果
         return Result.success(employeeLoginVO);
     }
 
