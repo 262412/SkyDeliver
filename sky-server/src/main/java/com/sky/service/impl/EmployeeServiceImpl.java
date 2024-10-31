@@ -119,4 +119,22 @@ public class EmployeeServiceImpl implements EmployeeService {
         return new PageResult(total, records);
     }
 
+    /**
+     * 根据员工状态启动或停止员工账户
+     * 此方法更新员工的状态，从而实现启动或停止账户的功能
+     *
+     * @param status 员工账户的新状态，1代表启动，0代表停止
+     * @param id     员工的唯一标识符，用于确定需要更新的员工记录
+     */
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        // 创建一个Employee对象，仅包含需要更新的字段：id和status
+        Employee employee = Employee.builder()
+                .id(id)
+                .status(status)
+                .build();
+        // 调用Mapper的update方法更新数据库中的员工记录
+        employeeMapper.update(employee);
+    }
 }
+

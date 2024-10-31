@@ -109,4 +109,26 @@ public class EmployeeController {
         // 返回一个表示成功的Result对象，其中包含分页查询结果
         return Result.success(pageResult);
     }
+
+    /**
+     * 启用或禁用员工账号
+     *
+     * 该方法通过接收一个状态码和一个员工ID，来启用或禁用指定的员工账号
+     * 状态码表示账号的新状态，ID指定哪个员工的账号将被操作
+     *
+     * @param status 账号状态，0表示禁用，非0表示启用
+     * @param id 员工账号的唯一标识
+     * @return 返回操作结果，仅告知操作成功
+     */
+    @PostMapping("/status/{status}")
+    public Result<String> startOrStop(@PathVariable Integer status, Long id) {
+        // 记录启用或禁用员工账号的日志
+        log.info("启用禁用员工账号：{},{}", status, id);
+
+        // 调用服务层方法来实际执行启用或禁用操作
+        employeeService.startOrStop(status, id);
+
+        // 返回操作成功的结果
+        return Result.success();
+    }
 }
