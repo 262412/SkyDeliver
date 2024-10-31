@@ -25,11 +25,11 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
     /**
      * 校验jwt
      *
-     * @param request
-     * @param response
-     * @param handler
-     * @return
-     * @throws Exception
+     * @param request  HTTP请求对象，用于获取请求头中的jwt令牌
+     * @param response HTTP响应对象，用于设置响应状态码
+     * @param handler  被拦截的处理器，用于判断是否为动态方法
+     * @return 如果jwt校验通过且用户具有访问权限，则返回true放行，否则返回false拦截
+     * @throws Exception 如果jwt校验失败，则抛出异常
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {

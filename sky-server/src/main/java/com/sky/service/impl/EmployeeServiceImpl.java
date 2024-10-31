@@ -62,17 +62,30 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employee;
     }
 
+    /**
+     * 保存员工信息
+     *
+     * @param employeeDTO 员工数据传输对象，包含要保存的员工信息
+     */
     @Override
     public void save(EmployeeDTO employeeDTO) {
+        // 创建一个新的Employee对象
         Employee employee = new Employee();
+        // 将员工数据传输对象的属性复制到员工对象中
         BeanUtils.copyProperties(employeeDTO, employee);
+        // 设置员工状态为启用
         employee.setStatus(StatusConstant.ENABLE);
+        // 设置员工初始密码为DEFAULT_PASSWORD，并使用MD5加密
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
+        // 设置员工创建时间为当前时间
         employee.setCreateTime(LocalDateTime.now());
+        // 设置员工更新时间为当前时间
         employee.setUpdateTime(LocalDateTime.now());
         //TODO 设置创建人和更新人
+        // 当前设置为固定的值10L，应根据实际情况动态设置
         employee.setCreateUser(10L);
         employee.setUpdateUser(10L);
+        // 将员工对象插入到数据库中
         employeeMapper.insert(employee);
     }
 
