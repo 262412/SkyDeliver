@@ -136,5 +136,43 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 调用Mapper的update方法更新数据库中的员工记录
         employeeMapper.update(employee);
     }
+    /**
+     * 根据员工ID获取员工信息，并隐藏员工密码
+     *
+     * @param id 员工ID，用于查询员工信息
+     * @return 返回查询到的员工对象，其中密码字段被隐藏处理
+     */
+    @Override
+    public Employee getById(Long id) {
+        // 通过员工ID从数据库中获取员工信息
+        Employee employee = employeeMapper.getById(id);
+
+        // 隐藏员工密码，无论原始密码为何，统一设置为隐藏字符串
+        employee.setPassword("****************");
+
+        // 返回处理后的员工对象
+        return employee;
+    }
+    /**
+     * 更新员工信息
+     *
+     * 该方法接收一个员工数据传输对象（EmployeeDTO），将其属性复制到一个员工对象（Employee）中，
+     * 然后设置当前时间和当前用户ID作为更新信息，最后调用Mapper的update方法更新数据库中的员工记录
+     *
+     * @param employeeDTO 员工数据传输对象，包含要更新的员工信息
+     */
+    @Override
+    public void update(EmployeeDTO employeeDTO) {
+        // 创建一个新的员工对象
+        Employee employee = new Employee();
+        // 将员工数据传输对象的属性复制到员工对象中
+        BeanUtils.copyProperties(employeeDTO, employee);
+        // 设置员工更新时间为当前时间
+        employee.setUpdateTime(LocalDateTime.now());
+        // 设置更新用户的ID
+        employee.setUpdateUser(BaseContext.getCurrentId());
+        // 调用Mapper的update方法更新数据库中的员工记录
+        employeeMapper.update(employee);
+    }
 }
 

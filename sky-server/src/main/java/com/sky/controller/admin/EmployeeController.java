@@ -131,4 +131,41 @@ public class EmployeeController {
         // 返回操作成功的结果
         return Result.success();
     }
+    /**
+     * 根据员工ID查询员工信息的接口方法
+     *
+     * @param id 员工的唯一标识符
+     * @return 返回一个Result对象，其中包含查询到的员工信息
+     */
+    @GetMapping("{id}")
+    @ApiOperation(value = "根据ID查询员工信息", notes = "根据ID查询员工信息")
+    public Result<Employee> getById(@PathVariable Long id) {
+        // 记录查询日志，包含员工ID信息
+        log.info("根据ID查询员工信息：{}", id);
+
+        // 调用服务层方法，根据ID获取员工信息
+        Employee employee = employeeService.getById(id);
+
+        // 返回成功结果，包含查询到的员工信息
+        return Result.success(employee);
+    }
+    /**
+     * 修改员工信息的接口方法
+     * 通过HTTP PUT请求来更新员工的详细信息
+     *
+     * @param employeeDTO 包含员工新信息的传输对象
+     * @return 返回修改结果，成功则返回成功的Result对象
+     */
+    @PutMapping
+    @ApiOperation(value = "修改员工信息", notes = "修改员工信息")
+    public Result update(@RequestBody EmployeeDTO employeeDTO) {
+        // 记录员工信息修改的日志
+        log.info("员工信息修改：{}", employeeDTO);
+
+        // 调用服务层方法更新员工信息
+        employeeService.update(employeeDTO);
+
+        // 返回修改成功的结果
+        return Result.success();
+    }
 }
