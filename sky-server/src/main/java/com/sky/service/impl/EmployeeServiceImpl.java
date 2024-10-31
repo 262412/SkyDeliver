@@ -1,16 +1,20 @@
 package com.sky.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
+import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
+import com.sky.result.PageResult;
 import com.sky.service.EmployeeService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -88,5 +93,30 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeMapper.insert(employee);
     }
 
+
+    /**
+     * 根据条件分页查询员工信息
+     * 该方法使用了PageHelper分页插件来实现分页查询，并返回包含总记录数和员工列表的PageResult对象
+     *
+     * @param employeePageQueryDTO 包含分页查询条件的DTO对象，包括页码和页面大小等信息
+     * @return PageResult对象，包含查询结果的总记录数和员工列表
+     */
+    @Override
+    public PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
+        // 启始分页，传入当前页码和页面大小
+        PageHelper.startPage(employeePageQueryDTO.getPage(), employeePageQueryDTO.getPageSize());
+
+        // 执行分页查询，获取包含分页信息的Page对象
+        Page<Employee> page = employeeMapper.pageQuery(employeePageQueryDTO);
+
+        // 获取查询结果的总记录数
+        long total = page.getTotal();
+
+        // 获取查询结果的员工列表
+        List<Employee> records = page.getResult();
+
+        // 构造并返回包含总记录数和员工列表的PageResult对象
+        return new PageResult(total, records);
+    }
 
 }

@@ -3,8 +3,10 @@ package com.sky.controller.admin;
 import com.sky.constant.JwtClaimsConstant;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
+import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
 import com.sky.properties.JwtProperties;
+import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.EmployeeService;
 import com.sky.utils.JwtUtil;
@@ -13,10 +15,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -93,5 +92,21 @@ public class EmployeeController {
         log.info("新增员工，员工数据：{}", employeeDTO.toString());
         employeeService.save(employeeDTO);
         return Result.success();
+    }
+    /**
+     * 处理员工信息分页查询的GET请求
+     * 该方法使用EmployeePageQueryDTO作为参数，用于传递分页查询的条件
+     * @param employeePageQueryDTO 包含分页查询条件的DTO对象
+     * @return 返回一个Result对象，其中包含分页查询的结果PageResult
+     */
+    @GetMapping(value = "/page")
+    @ApiOperation(value = "员工分页查询", notes = "员工分页查询")
+    public Result<PageResult> page(EmployeePageQueryDTO employeePageQueryDTO) {
+        // 记录分页查询的日志，以便于调试和审计
+        log.info("员工分页查询，{}", employeePageQueryDTO);
+        // 调用服务层的分页查询方法，并返回查询结果
+        PageResult pageResult = employeeService.pageQuery(employeePageQueryDTO);
+        // 返回一个表示成功的Result对象，其中包含分页查询结果
+        return Result.success(pageResult);
     }
 }
