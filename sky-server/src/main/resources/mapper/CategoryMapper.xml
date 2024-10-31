@@ -21,4 +21,16 @@
     <delete id="deleteById">
         delete from category where id = #{id}
     </delete>
+    <delete id="page">
+        select * from category
+        <where>
+            <if test="type != null">
+                and type = #{type}
+            </if>
+        </where>
+    </delete>
+    <select id="list" resultType="java.lang.Object">
+        select * from category
+
+    </select>
 </mapper>

@@ -21,6 +21,9 @@
         </set>
         where id = #{id}
     </update>
+    <update id="editPassword">
+        update employee set password = #{password} where id = #{id}
+    </update>
     <select id="pageQuery" resultType="com.sky.entity.Employee">
         select * from employee
         <where>

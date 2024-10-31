@@ -26,4 +26,6 @@ public interface EmployeeMapper {
     void update(Employee employee);
 
     Employee getById(Long id);
+
+    void editPassword(Long empId, String oldPassword, String newPassword);
 }

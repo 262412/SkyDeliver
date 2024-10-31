@@ -173,7 +173,7 @@ public class EmployeeController {
     @PutMapping("/editPassword")
     @ApiOperation(value = "修改密码", notes = "修改密码")
     public Result editPassword(@RequestBody EditPasswordDTO editPasswordDTO) {
-        // 记录修改密码的日志
+        // 记录修改密码的日志，包含修改密码的参数
         log.info("修改密码：{}", editPasswordDTO);
 
         // 调用服务层方法修改密码

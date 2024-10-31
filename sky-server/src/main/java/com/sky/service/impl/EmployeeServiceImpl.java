@@ -157,7 +157,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 返回处理后的员工对象
         return employee;
     }
-
     /**
      * 更新员工信息
      * <p>
@@ -179,29 +178,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 调用Mapper的update方法更新数据库中的员工记录
         employeeMapper.update(employee);
     }
-
     @Override
     public void editPassword(EditPasswordDTO editPasswordDTO) {
-        // 获取当前用户ID
-        Long currentId = BaseContext.getCurrentId();
-
-        // 根据ID查询用户信息
-        Employee employee = employeeMapper.getById(currentId);
-
-        // 将输入的旧密码进行MD5加密
-        String oldPassword = DigestUtils.md5DigestAsHex(editPasswordDTO.getOldPassword().getBytes());
-
-        // 验证旧密码是否正确
-        if (!oldPassword.equals(employee.getPassword())) {
-            throw new AccountLockedException(MessageConstant.PASSWORD_ERROR);
-        }
-
-        // 将输入的新密码进行MD5加密
-        String newPassword = DigestUtils.md5DigestAsHex(editPasswordDTO.getNewPassword().getBytes());
-
-        // 更新用户密码
-        employee.setPassword(newPassword);
-        employeeMapper.update(employee);
+        Long empId = editPasswordDTO.getEmpId();
+        String oldPassword = editPasswordDTO.getOldPassword();
+        String newPassword = editPasswordDTO.getNewPassword();
+        employeeMapper.editPassword(empId, oldPassword, newPassword);
     }
 }
 

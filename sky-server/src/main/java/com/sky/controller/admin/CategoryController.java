@@ -1,6 +1,8 @@
 package com.sky.controller.admin;
 
 import com.sky.dto.CategoryDTO;
+import com.sky.dto.CategoryPageQueryDTO;
+import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.CategoryService;
 import io.swagger.annotations.Api;
@@ -47,5 +49,20 @@ public class CategoryController {
         log.info("启用禁用分类，状态:{},分类ID:{}",status,id);
         categoryService.startOrStop(status,id);
         return Result.success();
+    }
+    @GetMapping("/list")
+    @ApiOperation(value = "查询分类", notes = "查询分类")
+    public Result<Object> list(Integer type)
+    {
+        log.info("查询分类，分类类型:{}",type);
+        return Result.success(categoryService.list(type));
+    }
+    @GetMapping("/page")
+    @ApiOperation(value = "分页查询分类", notes = "分页查询分类")
+    public Result<PageResult> page(CategoryPageQueryDTO categoryPageQueryDTO)
+    {
+        log.info("分页查询分类，分类数据:{}",categoryPageQueryDTO);
+        PageResult pageResult = categoryService.page(categoryPageQueryDTO);
+        return Result.success(pageResult);
     }
 }
