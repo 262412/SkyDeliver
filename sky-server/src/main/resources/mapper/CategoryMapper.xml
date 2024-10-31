@@ -7,6 +7,17 @@
         insert into category (id, type, name, sort, status, create_time, update_time, create_user, update_user)
         values (#{id},#{type},#{name},#{sort},#{status},#{createTime},#{updateTime},#{createUser},#{updateUser})
     </insert>
+    <update id="update">
+        update category
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="updateUser != null">update_user = #{updateUser},</if>
+        </set>
+        where id = #{id}
+    </update>
     <delete id="deleteById">
         delete from category where id = #{id}
     </delete>
