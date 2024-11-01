@@ -30,10 +30,10 @@ public class DishController {
         return Result.success();
     }
     @DeleteMapping
-    @ApiOperation(value = "删除菜品", notes = "删除菜品")
-    public Result deleteById(List<Long> ids) {
-        log.info("删除菜品:{}", ids);
-        dishService.deleteById(ids);
+    @ApiOperation(value = "批量删除菜品", notes = "批量删除菜品")
+    public Result delete(@RequestParam List<Long> ids) {
+        log.info("批量删除菜品:{}", ids);
+        dishService.deleteBatch(ids);
         return Result.success();
     }
     @PutMapping

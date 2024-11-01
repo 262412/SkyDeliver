@@ -6,5 +6,5 @@ import java.util.List;
 
 @Mapper
 public interface SetmealDishMapper {
-    List<Long> getSetmealIdByDishId(List<Long> ids);
+    List<Long> getSetmealIdByDishId(List<Long> dishIds);
 }

@@ -2,6 +2,7 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
@@ -64,19 +65,19 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
-    public void deleteById(List<Long> ids) {
+    public void deleteBatch(List<Long> ids) {
         for (Long id : ids) {
             Dish dish = dishMapper.getById(id);
             if (Objects.equals(dish.getStatus(), StatusConstant.ENABLE)) {
-                throw new DeletionNotAllowedException("起售中的菜品不能删除");
+                throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
             }
         }
         List<Long> setMealIds = setmealDishMapper.getSetmealIdByDishId(ids);
         if (setMealIds != null && !setMealIds.isEmpty()) {
-            throw new DeletionNotAllowedException("菜品正在被套餐使用，不能删除");
+            throw new DeletionNotAllowedException(MessageConstant.DISH_BE_RELATED_BY_SETMEAL);
         }
         for (Long id : ids) {
-            dishMapper.deleteById(ids);
+            dishMapper.deleteById(id);
             dishFlavorMapper.deleteByDishId(id);
         }
     }
@@ -132,6 +133,5 @@ public class DishServiceImpl implements DishService {
                 .build();
         dishMapper.update(dish);
     }
-
 }
 

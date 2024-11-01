@@ -23,7 +23,7 @@ public interface DishMapper {
     @AutoFill(value = OperationType.INSERT)
     void save(Dish dish);
 
-    void deleteById(List<Long> ids);
+    void deleteById(Long id);
 
     Page<DishVO> pageQuery(DishPageQueryDTO dishPageQueryDTO);
 

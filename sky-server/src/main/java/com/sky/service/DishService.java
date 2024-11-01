@@ -11,8 +11,6 @@ import java.util.List;
 public interface DishService {
     void saveWithFlavor(DishDTO dishDTO);
 
-    void deleteById(List<Long> ids);
-
     void updateWithFlavor(DishDTO dishDTO);
 
     PageResult pageQuery(DishPageQueryDTO dishPageQueryDTO);
@@ -22,4 +20,6 @@ public interface DishService {
     List<Dish> list(Long categoryId);
 
     void startOrStop(Integer status, Long id);
+
+    void deleteBatch(List<Long> ids);
 }
