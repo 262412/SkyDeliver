@@ -16,4 +16,7 @@ sky:
     port: 6379
     password: leadnews
     database: 0
+  wechat:
+    appid: wx3a4be596c3ea798b
+    secret: 0e415cd0e886f91da4259bb630e09a25
 
