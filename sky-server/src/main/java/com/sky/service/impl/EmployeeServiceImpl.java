@@ -86,12 +86,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 设置员工初始密码为DEFAULT_PASSWORD，并使用MD5加密
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
         // 设置员工创建时间为当前时间
-        employee.setCreateTime(LocalDateTime.now());
+        //employee.setCreateTime(LocalDateTime.now());
         // 设置员工更新时间为当前时间
-        employee.setUpdateTime(LocalDateTime.now());
+        //employee.setUpdateTime(LocalDateTime.now());
         // 设置创建用户和更新用户的ID
-        employee.setCreateUser(BaseContext.getCurrentId());
-        employee.setUpdateUser(BaseContext.getCurrentId());
+        //employee.setCreateUser(BaseContext.getCurrentId());
+        //employee.setUpdateUser(BaseContext.getCurrentId());
         // 将员工对象插入到数据库中
         employeeMapper.insert(employee);
     }
@@ -135,6 +135,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = Employee.builder()
                 .id(id)
                 .status(status)
+                //.updateTime(LocalDateTime.now())
+                //.updateUser(BaseContext.getCurrentId())
                 .build();
         // 调用Mapper的update方法更新数据库中的员工记录
         employeeMapper.update(employee);
@@ -172,9 +174,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 将员工数据传输对象的属性复制到员工对象中
         BeanUtils.copyProperties(employeeDTO, employee);
         // 设置员工更新时间为当前时间
-        employee.setUpdateTime(LocalDateTime.now());
+        //employee.setUpdateTime(LocalDateTime.now());
         // 设置更新用户的ID
-        employee.setUpdateUser(BaseContext.getCurrentId());
+        //employee.setUpdateUser(BaseContext.getCurrentId());
         // 调用Mapper的update方法更新数据库中的员工记录
         employeeMapper.update(employee);
     }
