@@ -5,6 +5,10 @@
 <mapper namespace="com.sky.mapper.SetmealDishMapper">
 
     <select id="getSetmealIdByDishId" resultType="java.lang.Long">
-        select setmeal_id from setmeal_dish where dish_id = #{dishId}
+        select setmeal_id from setmeal_dish where dish_id in (
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        )
     </select>
 </mapper>
