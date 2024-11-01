@@ -44,26 +44,26 @@ public class DishServiceImpl implements DishService {
     @Override
     @Transactional
     public void saveWithFlavor(DishDTO dishDTO) {
-        // 创建一个新的Dish对象
         Dish dish = new Dish();
-        // 将DishDTO中的属性复制到Dish对象中
         BeanUtils.copyProperties(dishDTO, dish);
-        // 保存Dish对象到数据库
         dishMapper.save(dish);
-        // 获取保存后的菜品ID
         Long dishId = dish.getId();
-        // 获取菜品的口味列表
         List<DishFlavor> flavors = dishDTO.getFlavors();
-        // 如果口味列表不为空，则遍历每个口味并设置其对应的菜品ID
         if (flavors != null && !flavors.isEmpty()) {
             flavors.forEach(dishFlavor -> {
                 dishFlavor.setDishId(dishId);
             });
-            // 批量插入口味信息到数据库
             dishFlavorMapper.insertBatch(flavors);
         }
     }
 
+    /**
+     * 批量删除菜品
+     * 此方法首先检查菜品的状态和是否关联套餐，如果菜品上架或有关联套餐，则不允许删除
+     * 检查通过后，删除菜品及其对应的口味信息
+     *
+     * @param ids 要删除的菜品ID列表
+     */
     @Override
     public void deleteBatch(List<Long> ids) {
         for (Long id : ids) {
@@ -82,6 +82,12 @@ public class DishServiceImpl implements DishService {
         }
     }
 
+    /**
+     * 更新菜品信息及其对应的口味
+     * 此方法首先更新Dish对象，然后删除原有的口味信息，最后重新插入口味信息
+     *
+     * @param dishDTO 菜品数据传输对象，包含更新后的菜品基本信息及其对应的口味列表
+     */
     @Override
     public void updateWithFlavor(DishDTO dishDTO) {
         Dish dish = new Dish();
@@ -98,6 +104,13 @@ public class DishServiceImpl implements DishService {
         }
     }
 
+    /**
+     * 分页查询菜品信息
+     * 此方法使用PageHelper进行分页查询，并返回查询结果
+     *
+     * @param dishPageQueryDTO 分页查询条件对象，包含页码、页面大小等信息
+     * @return 分页结果对象，包含总记录数和查询到的菜品信息列表
+     */
     @Override
     public PageResult pageQuery(DishPageQueryDTO dishPageQueryDTO) {
         PageHelper.startPage(dishPageQueryDTO.getPage(), dishPageQueryDTO.getPageSize());
@@ -106,6 +119,12 @@ public class DishServiceImpl implements DishService {
         return new PageResult(page.getTotal(), result);
     }
 
+    /**
+     * 根据菜品ID查询菜品及其对应的口味信息
+     *
+     * @param id 菜品ID
+     * @return 菜品及其对应的口味信息对象
+     */
     @Override
     public DishVO getByIdWithFlavor(Long id) {
         Dish dish = dishMapper.getById(id);
@@ -116,6 +135,12 @@ public class DishServiceImpl implements DishService {
         return dishVO;
     }
 
+    /**
+     * 根据分类ID查询上架的菜品列表
+     *
+     * @param categoryId 分类ID
+     * @return 上架的菜品列表
+     */
     @Override
     public List<Dish> list(Long categoryId) {
         Dish dish = Dish.builder()
@@ -125,6 +150,12 @@ public class DishServiceImpl implements DishService {
         return dishMapper.list(dish);
     }
 
+    /**
+     * 启用或禁用菜品
+     *
+     * @param status 菜品状态，启用或禁用
+     * @param id     菜品ID
+     */
     @Override
     public void startOrStop(Integer status, Long id) {
         Dish dish = Dish.builder()
@@ -134,4 +165,3 @@ public class DishServiceImpl implements DishService {
         dishMapper.update(dish);
     }
 }
-
