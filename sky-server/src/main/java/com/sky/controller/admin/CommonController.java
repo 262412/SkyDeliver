@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.UUID;
 
-@RestController
+@RestController("adminCommonController")
 @RequestMapping("/admin/common")
 @Api(value = "通用接口", tags = "通用接口")
 @Slf4j

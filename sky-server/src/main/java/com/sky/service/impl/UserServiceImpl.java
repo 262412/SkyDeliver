@@ -10,6 +10,7 @@ import com.sky.mapper.UserMapper;
 import com.sky.properties.WeChatProperties;
 import com.sky.service.UserService;
 import com.sky.utils.HttpClientUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
     public static final String WX_LOGIN = "https://api.weixin.qq.com/sns/jscode2session";
     @Autowired
@@ -74,6 +76,19 @@ public class UserServiceImpl implements UserService {
         // 解析JSON响应，提取openid
         JSONObject jsonObject = JSON.parseObject(json);
         String openid = jsonObject.getString("openid");
+        String errcode = jsonObject.getString("errcode");
+        String errmsg = jsonObject.getString("errmsg");
+
+        if (openid == null) {
+            // 处理微信服务器返回的错误信息
+            if (errcode != null && errmsg != null) {
+                log.error("微信登录失败，错误码: {}, 错误信息: {}", errcode, errmsg);
+                throw new LoginFailedException("微信登录失败，错误码: " + errcode + ", 错误信息: " + errmsg);
+            } else {
+                log.error("微信登录失败，未获取到openid");
+                throw new LoginFailedException(MessageConstant.LOGIN_FAILED);
+            }
+        }
         // 返回openid
         return openid;
     }

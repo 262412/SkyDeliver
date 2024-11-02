@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
-@RestController
+@RestController("userUserController")
 @RequestMapping("/user/user")
 @Api(value = "用户接口", tags = "用户接口")
 @Slf4j
@@ -34,7 +34,7 @@ public class UserController {
     public Result<UserLoginVO> login (@RequestBody UserLoginDTO userLoginDTO){
         log.info("用户登录：{}", userLoginDTO.getCode());
         User user = userService.wxLogin(userLoginDTO);
-        Map<String, Object> claims = new HashMap<String, Object>();
+        Map<String, Object> claims = new HashMap<>();
         claims.put(JwtClaimsConstant.USER_ID, user.getId());
         String token = JwtUtil.createJWT(jwtProperties.getUserSecretKey(), jwtProperties.getUserTtl(), claims);
         UserLoginVO userLoginVO = UserLoginVO.builder()
