@@ -22,4 +22,6 @@ public interface DishService {
     void startOrStop(Integer status, Long id);
 
     void deleteBatch(List<Long> ids);
+
+    List<DishVO> listWithFlavor(Long categoryId);
 }

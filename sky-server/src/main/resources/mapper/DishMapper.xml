@@ -52,5 +52,14 @@
     <select id="getBySetmealId" resultType="com.sky.entity.Dish">
         select d.* from dish d left join setmeal_dish sd on d.id = sd.dish_id where sd.setmeal_id = #{setmealId}
     </select>
+    <select id="listWithFlavor" resultType="com.sky.vo.DishVO">
+        select d.*, c.name as categoryName, ds.name as flavorName, ds.copies
+        from dish d left join category c on d.category_id = c.id left join dish_flavor ds on d.id = ds.dish_id
+        <where>
+            <if test="categoryId != null">and d.category_id = #{categoryId}</if>
+            <if test="status != null">and d.status = #{status}</if>
+            <if test="name != null and name != ''">and d.name like concat('%',#{name},'%')</if>
+        </where>
+    </select>
 
 </mapper>
