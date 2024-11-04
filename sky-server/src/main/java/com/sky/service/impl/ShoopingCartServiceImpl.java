@@ -102,10 +102,52 @@ public class ShoopingCartServiceImpl implements ShoppingCartService {
         return list;
     }
 
+    /**
+     * 清空购物车操作
+     * 此方法用于删除当前用户在购物车中的所有商品
+     */
     @Override
     public void clean() {
+        // 获取当前用户ID
         Long userId = BaseContext.getCurrentId();
+        // 调用Mapper方法，根据用户ID删除购物车中的所有商品
         shoppingCartMapper.deleteByUserId(userId);
+    }
+
+    /**
+     * 从购物车中减去商品
+     * 当商品数量为1时，直接从购物车中移除；否则，商品数量减1
+     *
+     * @param shoppingCartDTO 包含要操作的商品信息的购物车DTO
+     */
+    @Override
+    public void sub(ShoppingCartDTO shoppingCartDTO) {
+        // 获取当前用户ID
+        Long userId = BaseContext.getCurrentId();
+        // 创建一个ShoppingCart对象，并设置用户ID
+        ShoppingCart shoppingCart = ShoppingCart.builder()
+                .userId(userId)
+                .build();
+        // 根据传入的DTO设置购物车中的商品ID
+        if(shoppingCartDTO.getDishId() != null){
+            shoppingCart.setDishId(shoppingCartDTO.getDishId());
+        }else{
+            shoppingCart.setSetmealId(shoppingCartDTO.getSetmealId());
+        }
+        // 查询购物车中是否存在该商品
+        List<ShoppingCart> list = shoppingCartMapper.list(shoppingCart);
+        // 如果存在，则根据商品数量决定是减少数量还是直接删除
+        if(list != null && list.size() > 0){
+            ShoppingCart cart = list.get(0);
+            // 商品数量为1，直接删除该购物车项
+            if(cart.getNumber() == 1){
+                shoppingCartMapper.deleteById(cart.getId());
+            }else{
+                // 商品数量减1，并更新数据库
+                cart.setNumber(cart.getNumber() - 1);
+                shoppingCartMapper.updateNumberById(cart);
+            }
+        }
     }
 
 }
