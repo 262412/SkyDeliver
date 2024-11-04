@@ -101,4 +101,11 @@ public class ShoopingCartServiceImpl implements ShoppingCartService {
         // 返回购物车列表
         return list;
     }
+
+    @Override
+    public void clean() {
+        Long userId = BaseContext.getCurrentId();
+        shoppingCartMapper.deleteByUserId(userId);
+    }
+
 }
