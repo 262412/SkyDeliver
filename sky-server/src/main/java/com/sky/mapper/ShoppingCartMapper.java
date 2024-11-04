@@ -9,7 +9,7 @@ import java.util.List;
 public interface ShoppingCartMapper {
     void add(ShoppingCart shoppingCart);
 
-    List<ShoppingCart> list(Long userId);
+    List<ShoppingCart> list(ShoppingCart shoppingCart);
 
     void updateNumberById(ShoppingCart cart);
 }

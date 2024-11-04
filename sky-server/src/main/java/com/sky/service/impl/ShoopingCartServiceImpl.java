@@ -44,7 +44,7 @@ public class ShoopingCartServiceImpl implements ShoppingCartService {
         // 设置购物车对象的用户ID
         shoppingCart.setUserId(userId);
         // 根据用户ID查询购物车中的商品列表
-        List<ShoppingCart> list = shoppingCartMapper.list(userId);
+        List<ShoppingCart> list = shoppingCartMapper.list(shoppingCart);
         // 如果商品列表不为空，则更新第一个商品的数量
         if(list != null && !list.isEmpty()){
             ShoppingCart cart = list.get(0);
@@ -74,5 +74,31 @@ public class ShoopingCartServiceImpl implements ShoppingCartService {
             // 将购物车对象添加到数据库中
             shoppingCartMapper.add(shoppingCart);
         }
+    }
+
+    /**
+     * 显示购物车内容
+     *
+     * 此方法用于获取当前用户的购物车信息它首先确定当前用户的身份，
+     * 然后根据用户ID构建一个购物车对象，最后调用购物车映射器的list方法
+     * 获取该用户的购物车列表
+     *
+     * @return 返回当前用户的购物车列表
+     */
+    @Override
+    public List<ShoppingCart> showShoppingCart() {
+        // 获取当前用户ID
+        Long userId = BaseContext.getCurrentId();
+
+        // 构建一个购物车对象，设置其用户ID为当前用户ID
+        ShoppingCart shoppingCart = ShoppingCart.builder()
+                .userId(userId)
+                .build();
+
+        // 调用购物车映射器的list方法，获取当前用户的购物车列表
+        List<ShoppingCart> list = shoppingCartMapper.list(shoppingCart);
+
+        // 返回购物车列表
+        return list;
     }
 }
