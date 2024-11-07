@@ -127,10 +127,20 @@ public class OrderServiceImpl implements OrderService {
         return orderSubmitVO;
     }
 
+    /**
+     * 支付功能实现方法
+     * 该方法处理订单支付逻辑，包括调用微信支付接口生成预支付交易单，
+     * 并根据返回结果生成订单支付信息对象返回给前端
+     *
+     * @param ordersPaymentDTO 订单支付数据传输对象，包含订单相关信息
+     * @return 返回OrderPaymentVO对象，包含订单支付相关信息
+     * @throws Exception 如果支付过程中发生错误，抛出异常
+     */
     @Override
     public OrderPaymentVO payment(OrdersPaymentDTO ordersPaymentDTO) throws Exception {
         // 当前登录用户id
         Long userId = BaseContext.getCurrentId();
+        // 根据用户ID获取用户信息
         User user = userMapper.getById(userId);
 
         //调用微信支付接口，生成预支付交易单
@@ -151,9 +161,16 @@ public class OrderServiceImpl implements OrderService {
         //设置package字符串，用于前端调用微信支付
         vo.setPackageStr(jsonObject.getString("package"));
 
+        // 返回订单支付信息对象
         return vo;
     }
 
+    /**
+     * 处理支付成功后的逻辑
+     * 当支付成功时，此方法被调用，主要用于更新订单状态和发送支付成功消息
+     *
+     * @param outTradeNo 订单号，用于识别和处理特定的订单
+     */
     @Override
     public void paySuccess(String outTradeNo) {
         // 根据订单号查询订单
@@ -184,6 +201,13 @@ public class OrderServiceImpl implements OrderService {
         webSocketServer.sendToAllClient(JSON.toJSONString(map));
     }
 
+    /**
+     * 重复订单方法
+     * 该方法用于将已存在的订单详情转换为购物车对象，并重新插入数据库
+     * 主要用于当用户想要重复购买之前订单中的所有商品时
+     *
+     * @param id 订单ID，用于查询订单详情
+     */
     @Override
     public void repetition(Long id) {
         // 查询当前用户id
@@ -198,7 +222,9 @@ public class OrderServiceImpl implements OrderService {
 
             // 将原订单详情里面的菜品信息重新复制到购物车对象中
             BeanUtils.copyProperties(x, shoppingCart, "id");
+            // 设置当前用户ID
             shoppingCart.setUserId(userId);
+            // 设置创建时间
             shoppingCart.setCreateTime(LocalDateTime.now());
 
             return shoppingCart;
@@ -208,6 +234,14 @@ public class OrderServiceImpl implements OrderService {
         shoppingCartMapper.insertBatch(shoppingCartList);
     }
 
+    /**
+     * 根据用户ID和订单状态进行分页查询
+     *
+     * @param pageNum 页码
+     * @param pageSize 每页记录数
+     * @param status 订单状态
+     * @return 返回分页查询结果，包括总记录数和订单列表
+     */
     @Override
     public PageResult pageQuery4User(int pageNum, int pageSize, Integer status) {
         // 设置分页
@@ -242,6 +276,15 @@ public class OrderServiceImpl implements OrderService {
         return new PageResult(page.getTotal(), list);
     }
 
+    /**
+     * 根据订单ID获取订单详情
+     *
+     * 此方法首先根据提供的订单ID查询订单信息，然后查询与该订单关联的菜品或套餐明细，
+     * 最后将这些信息封装到一个订单视图对象(OrderVO)中并返回这为前端或其他服务提供详细信息
+     *
+     * @param id 订单的唯一标识符
+     * @return 返回包含订单及其详情的OrderVO对象
+     */
     @Override
     public OrderVO details(Long id) {
         // 根据id查询订单
@@ -258,6 +301,15 @@ public class OrderServiceImpl implements OrderService {
         return orderVO;
     }
 
+    /**
+     * 根据用户ID取消订单
+     * 此方法首先会根据提供的订单ID查询订单信息，如果订单不存在，则抛出异常
+     * 如果订单状态允许取消，则更新订单状态为已取消，并根据订单当前状态决定是否需要退款
+     * 对于待接单状态的订单取消时，会调用微信支付退款接口进行退款操作
+     *
+     * @param id 订单ID，用于识别并操作特定的订单记录
+     * @throws Exception 如果订单不存在或订单状态不允许取消，则抛出异常
+     */
     @Override
     public void userCancelById(Long id) throws Exception {
         // 根据id查询订单
@@ -269,6 +321,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         //订单状态 1待付款 2待接单 3已接单 4派送中 5已完成 6已取消
+        //只有当订单状态为待付款或待接单时，才允许用户取消订单
         if (ordersDB.getStatus() > 2) {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
@@ -297,4 +350,28 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
+    /**
+     * 根据订单ID提醒所有客户端订单已支付
+     * 此方法首先会根据提供的订单ID从数据库中获取订单信息如果订单不存在，则抛出异常
+     * 接着，构造一个消息映射，包含订单类型、订单ID和订单已支付的信息内容，
+     * 并通过WebSocket服务器将此信息发送给所有客户端
+     *
+     * @param id 订单的唯一标识符如果订单不存在，将抛出OrderBusinessException异常
+     */
+    @Override
+    public void reminder(Long id) {
+        // 根据订单ID获取订单信息
+        Orders ordersDB = orderMapper.getById(id);
+        // 检查订单是否存在
+        if (ordersDB == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        // 构造消息映射
+        Map map = new HashMap();
+        map.put("type", 2);
+        map.put("orderId", ordersDB.getId());
+        map.put("content", "订单号：" + ordersDB.getNumber() + "的订单已支付");
+        // 将消息发送给所有客户端
+        webSocketServer.sendToAllClient(JSON.toJSONString(map));
+    }
 }
