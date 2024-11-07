@@ -3,8 +3,10 @@ package com.sky.service.impl;
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ReportMapper;
+import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.TurnoverReportVO;
+import com.sky.vo.UserReportVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,8 @@ public class ReportServiceImpl implements ReportService {
     private ReportMapper reportMapper;
     @Autowired
     private OrderMapper orderMapper;
+    @Autowired
+    private UserMapper userMapper;
 
     /**
      * 根据指定日期范围生成营业额报告
@@ -68,6 +72,53 @@ public class ReportServiceImpl implements ReportService {
                 .builder()
                 .dateList(StringUtils.join(dateList, ","))
                 .turnoverList(StringUtils.join(turnoverList, ","))
+                .build();
+    }
+
+    /**
+     * 用户统计报告服务方法
+     * 根据指定的开始和结束日期，统计每日的新增用户数和累计用户数
+     *
+     * @param begin 开始日期
+     * @param end 结束日期
+     * @return 返回包含日期、每日新增用户数和累计用户数的用户统计报告对象
+     */
+    @Override
+    public UserReportVO userStatistics(LocalDate begin, LocalDate end) {
+        // 初始化日期列表，用于存放从开始到结束日期之间的所有日期
+        List<LocalDate> dateList = new ArrayList<>();
+        dateList.add(begin);
+        // 循环遍历，生成从开始到结束日期之间的所有日期列表
+        while (!begin.equals(end)) {
+            begin = begin.plusDays(1);
+            dateList.add(begin);
+        }
+        // 初始化新增用户数和累计用户数列表，用于存放每日的新增用户数和累计用户数
+        List<Integer> newUserList = new ArrayList<>();
+        List<Integer> totalUserList = new ArrayList<>();
+        // 遍历每个日期，统计每日的新增用户数和累计用户数
+        for (LocalDate date : dateList) {
+            // 获取当前日期的开始和结束时间点，用于查询当日新增用户数
+            LocalDateTime beginTime = LocalDateTime.of(date, LocalTime.MIN);
+            LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
+
+            // 创建查询参数Map，存放查询条件
+            Map map = new HashMap<>();
+            map.put("end", endTime);
+            // 查询当前日期的累计用户数
+            Integer totalUser = userMapper.countUserByMap(map);
+            map.put("begin", beginTime);
+            // 查询当前日期的新增用户数
+            Integer newUser = userMapper.countUserByMap(map);
+            totalUserList.add(totalUser);
+            newUserList.add(newUser);
+        }
+        // 构建并返回用户统计报告对象
+        return UserReportVO
+                .builder()
+                .dateList(StringUtils.join(dateList, ","))
+                .totalUserList(StringUtils.join(totalUserList, ","))
+                .newUserList(StringUtils.join(newUserList, ","))
                 .build();
     }
 }
