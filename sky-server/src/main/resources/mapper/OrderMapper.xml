@@ -97,4 +97,17 @@
             </if>
         </where>
     </select>
+    <select id="getSalesTop" resultType="com.sky.dto.GoodsSalesDTO">
+        select g.name, sum(od.number) as number from orders o, order_detail od, dish g
+        where o.id = od.order_id and od.dish_id = g.id
+        <if test="begin != null">
+            and o.order_time &gt;= #{begin}
+        </if>
+        <if test="end != null">
+            and o.order_time &lt;= #{end}
+        </if>
+        group by g.name
+        order by number desc
+        limit 10
+    </select>
 </mapper>

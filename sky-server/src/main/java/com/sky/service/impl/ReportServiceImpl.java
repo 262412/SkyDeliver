@@ -1,11 +1,13 @@
 package com.sky.service.impl;
 
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ReportMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.OrderReportVO;
+import com.sky.vo.SalesTop10ReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ReportServiceImpl implements ReportService {
@@ -176,6 +179,39 @@ public class ReportServiceImpl implements ReportService {
                 .build();
         return orderReportVO;
     }
+
+    /**
+     * 获取指定日期范围内的销售前十商品报告
+     *
+     * @param begin 开始日期，用于筛选订单
+     * @param end 结束日期，用于筛选订单
+     * @return 返回一个包含销售前十商品名称和销售数量的报告对象
+     */
+    @Override
+    public SalesTop10ReportVO getOrderTop10(LocalDate begin, LocalDate end) {
+        // 将开始和结束日期转换为时间范围的起始和结束时刻
+        LocalDateTime beginTime = LocalDateTime.of(begin, LocalTime.MIN);
+        LocalDateTime endTime = LocalDateTime.of(end, LocalTime.MAX);
+
+        // 调用orderMapper的方法获取销售前十的商品信息
+        List<GoodsSalesDTO> salesTop10 = orderMapper.getSalesTop(beginTime, endTime);
+
+        // 提取销售前十商品的名称，拼接成一个逗号分隔的字符串
+        List<String> names = salesTop10.stream().map(GoodsSalesDTO::getName).collect(Collectors.toList());
+        String nameList = StringUtils.join(names, ",");
+
+        // 提取销售前十商品的销售数量，拼接成一个逗号分隔的字符串
+        List<Integer> numbers = salesTop10.stream().map(GoodsSalesDTO::getNumber).collect(Collectors.toList());
+        String numberList = StringUtils.join(numbers, ",");
+
+        // 构建并返回包含商品名称和销售数量的报告对象
+        return SalesTop10ReportVO
+                .builder()
+                .nameList(nameList)
+                .numberList(numberList)
+                .build();
+    }
+
     private Integer getOrderCount(LocalDateTime begin, LocalDateTime end, Integer status) {
         Map map = new HashMap();
         map.put("begin", begin);
@@ -183,4 +219,5 @@ public class ReportServiceImpl implements ReportService {
         map.put("status", status);
         return orderMapper.countByMap(map);
     }
+
 }
